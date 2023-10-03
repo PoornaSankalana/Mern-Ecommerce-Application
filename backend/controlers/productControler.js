@@ -6,80 +6,77 @@ import Product from "../models/productModel.js";
 // @route GET /api/products
 // @access Public
 const getProducts = asyncHandler(async (req, res) => {
-	const Cg = req.query.Cg;
-	const filter = req.query.filter;
-	const from = req.query.from;
-	const to = req.query.to;
-	const keyword = req.query.keyword
-		? {
-				name: {
-					$regex: req.query.keyword,
-					$options: "i",
-				},
-		  }
-		: {};
+    const Cg = req.query.Cg
+    const filter = req.query.filter
+    const from = parseFloat(req.query.from);
+    const to = parseFloat(req.query.to);
+    const keyword = req.query.keyword ? {
+        name : {
+            $regex : req.query.keyword,
+            $options : 'i'
+        }
+    } : {}
+    
+    console.log(req.query.keyword)
+     
+    //fix ssh atack
+    if(typeof Cg === 'string' && Cg.trim() !== ''){
+        const products =  await Product.find({category : Cg});
+        res.json(products)
 
-	console.log(req.query.keyword);
+    }
+    else if(typeof filter === 'string' && filter.trim() !== ''){
+        const allowedFilters = ['Rating', 'date', 'highprice', 'lowprice'];
 
-	if (Cg) {
-		const products = await Product.find({ category: Cg });
-		res.json(products);
-	} else if (filter) {
-		switch (filter) {
-			case "Rating":
-				const productsbyrating = await Product.find({})
-					.sort("-rating")
-					.exec();
-				res.json(productsbyrating);
+        // Check if the filter value is one of the allowed values
+        if (!allowedFilters.includes(filter)) {
+            res.status(400).json({ error: 'Invalid filter value' });
+            return;
+        }
+        switch (filter) {
+            case 'Rating':
+                const productsbyrating =  await Product.find({}).sort('-rating').exec();
+                res.json(productsbyrating)
 
-				break;
-			case "date":
-				const productsbydate = await Product.find({})
-					.sort("createdAt")
-					.exec();
-				res.json(productsbydate);
-				break;
-			case "highprice":
-				const productsbyhighprice = await Product.find({}).sort(
-					"price",
-				);
-				res.json(productsbyhighprice);
+                break;
+            case 'date':
+                const productsbydate =  await Product.find({}).sort('createdAt').exec();
+                res.json(productsbydate)
+                    break;
+            case 'highprice':
+                const productsbyhighprice =  await Product.find({}).sort('price');
+                res.json(productsbyhighprice)
 
-				break;
-			case "lowprice":
-				const productsbylowprice = await Product.find({})
-					.sort("-price")
-					.exec();
-				res.json(productsbylowprice);
-				break;
+                    break;
+            case 'lowprice':
+                const productsbylowprice =  await Product.find({}).sort('-price').exec();
+                res.json(productsbylowprice)
+                    break;
+        
+            default:
+                break;
+        }
+    }else if(from && to){
+        const productbyprice =  await Product.find({price:{$lte:to},price:{$gte:from}});
+        res.json(productbyprice)
 
-			default:
-				break;
-		}
-	} else if (from && to) {
-		const productbyprice = await Product.find({
-			price: { $lte: to },
-			price: { $gte: from },
-		});
-		res.json(productbyprice);
-	} else {
-		const products = await Product.find({ ...keyword });
-		res.json(products);
-	}
-});
+    }else{
+        const products =  await Product.find({...keyword});
+        res.json(products)
 
-// @desc Fetch single  product
+    }
+})
+
+// @desc Fetch single product
 // @route GET /api/products/:id
 // @access Public
 const getProductById = asyncHandler(async (req, res) => {
-	const product = await Product.findById(req.params.id);
-	if (product) {
-		res.json(product);
-	} else {
-		// status it's 500 by default cuz of errHandler
-		res.status(404);
-		throw new Error("Product not found");
-	}
+    const product = await Product.findById(req.params.id);
+    if (product) {
+        res.json(product);
+    } else {
+        res.status(404).json({ error: 'Product not found' }); // Return a 404 response with an error message
+    }
 });
 
 // @desc Delete a product
@@ -124,32 +121,24 @@ const createProduct = asyncHandler(async (req, res) => {
 // @route PUT /api/products/:id
 // @access Private/Admin
 const updateProduct = asyncHandler(async (req, res) => {
-	const {
-		name,
-		price,
-		description,
-		category,
-		sizes,
-		Images,
-		countInStock,
-	} = req.body;
-	//console.log(name,price,Images)
-	const product = await Product.findById(req.params.id);
-	if (product) {
-		product.name = name;
-		product.price = price;
-		product.description = description;
-		product.category = category;
-		product.sizes = sizes;
-		product.images = Images;
-		product.countInStock = countInStock;
-		const updatedProduct = await product.save();
-		console.log(updatedProduct);
-		res.json(updateProduct);
-	} else {
-		res.status(404);
-		throw new Error("Product Not found");
-	}
+    const { name, price, description, category, sizes, images, countInStock } = req.body; // Changed 'Images' to 'images'
+    console.log(name, price, images);
+    const product = await Product.findById(req.params.id);
+    if (product) {
+        product.name = name;
+        product.price = price;
+        product.description = description;
+        product.category = category;
+        product.sizes = sizes;
+        product.images = images; // Updated property name to 'images'
+        product.countInStock = countInStock;
+        const updatedProduct = await product.save();
+        console.log(updatedProduct);
+        res.json(updatedProduct);
+    } else {
+        res.status(404);
+        throw new Error('Product not found');
+    }
 });
 
 // @desc Create new Review

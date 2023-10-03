@@ -1,15 +1,16 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet";
-
-import { Form, Image } from "react-bootstrap";
-import { useDispatch, useSelector } from "react-redux";
-import { BsArrowRight } from "react-icons/bs";
-import avatar from "./img/avatare.svg";
-import login from "../../actions/userActions";
-import login_svg from "./img/login.svg";
-import wave from "./img/wavev.png";
-import "./logincss.css";
+import {Form, Image} from 'react-bootstrap'
+import {useDispatch, useSelector} from 'react-redux'
+import {BsArrowRight} from "react-icons/bs"
+import avatar from './img/avatare.svg'
+import login from '../../actions/userActions'
+import login_svg from './img/login.svg'
+import wave from './img/wavev.png'
+import './logincss.css'
+import { LoginSocialGoogle } from 'reactjs-social-login';
+import { GoogleLoginButton } from 'react-social-login-buttons';
 
 const LoginScreen = ({ location, history }) => {
   const [email, setEmail] = useState("");
@@ -52,67 +53,65 @@ const LoginScreen = ({ location, history }) => {
     inputa.addEventListener("focus", addcl);
     inputa.addEventListener("blur", remcl);
   });
+    return (
+        <div>
+          <Helmet>
+            <title>Login</title>
 
-  return (
-    <div>
-      <Helmet>
-        <title>Login</title>
-      </Helmet>
-      <Image className="wave" src={wave} />
+          </Helmet>
+          	<Image className="wave" src={wave} />
 
-      <div className="containera">
-        <div className="imga">
-          <Image src={login_svg} />
-        </div>
-        <div className="login-content">
-          <form onSubmit={submitHandler}>
-            <input type="hidden" name="_csrf" value="{{ csrfToken }}"></input>
-            <h1>Member Login</h1>
-            {error && <h4>{error}</h4>}
-            <div className="input-div one">
-              <div className="i">
-                <i class="fas fa-envelope"></i>
-              </div>
-              <div className="div">
-                <input
-                  type="text"
-                  value={email}
-                  className="inputa"
-                  placeholder="Email"
-                  onChange={(e) => setEmail(e.target.value)}
-                />
-              </div>
-            </div>
-            <div className="input-div pass">
-              <div className="i">
-                <i className="fas fa-lock"></i>
-              </div>
-              <div className="div">
-                <input
-                  type="password"
-                  value={password}
-                  className="inputa"
-                  placeholder="Password"
-                  onChange={(e) => setPassword(e.target.value)}
-                />
-              </div>
-            </div>
-
-            <input type="submit" className="btna" value="Login" />
-
-            <div className="div-forgot">
-              <span>Forgot </span>
-              <Link className="text-forgot" to="/forgot">
-                Password?{" "}
-              </Link>
-            </div>
-            <Link
-              className="createAcc"
-              to={redirect ? `/register?redirect=${redirect}` : "/register"}
-            >
-              Create your Account <BsArrowRight size="25" />
-            </Link>
-          </form>
+            <div className="containera">
+              
+		<div className="imga">
+			<Image src={login_svg} />
+		</div>
+		<div className="login-content">
+			<form onSubmit={submitHandler}>
+			<h1>Member Login</h1>
+				{error && <h4>{error}</h4>}
+           		<div className="input-div one">
+           		   <div className="i">
+                     <i class="fas fa-envelope"></i>
+           		   </div>
+           		   <div className="div">
+           		   		
+           		   		<input type="text" value={email} className="inputa" placeholder="Email" onChange={(e) => setEmail(e.target.value)} />
+           		   </div>
+           		</div>
+           		<div className="input-div pass">
+           		   <div className="i"> 
+           		    	<i className="fas fa-lock"></i>
+           		   </div>
+           		   <div className="div">
+           		    	
+           		    	<input type="password" value={password} className="inputa" placeholder="Password" onChange={(e) => setPassword(e.target.value)}/>
+            	   </div>
+            	</div>
+            	
+            	<input type="submit" className="btna" value="Login" />
+               
+              <div className='div-forgot'>
+                              <span>Forgot </span>
+                         <Link className ='text-forgot'  to ='/forgot'>Password? </Link>
+                         
+                         </div>
+              <Link className="createAcc" to={redirect ? `/register?redirect=${redirect}` : '/register'}>Create your Account <BsArrowRight size="25"/></Link>
+              <LoginSocialGoogle
+        client_id={"938311708389-fu4c1ckldi2vbdbf042c1k7fru2qmmo1.apps.googleusercontent.com"}
+        scope="openid profile email"
+        discoveryDocs="claims_supported"
+        access_type="offline"
+        onResolve={({ provider, data }) => {
+          console.log(provider, data);
+        }}
+        onReject={(err) => {
+          console.log(err);
+        }}
+      >
+        <GoogleLoginButton />
+      </LoginSocialGoogle>
+            </form>
         </div>
       </div>
     </div>
