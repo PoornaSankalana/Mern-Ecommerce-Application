@@ -14,6 +14,19 @@ dotenv.config();
 connectDB();
 
 const app = express();
+const csrf = require("csurf");
+const rateLimit = require("express-rate-limit");
+
+// Apply rate limiting middleware to all routes (adjust options as needed)
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // Limit to 100 requests per IP within the 15-minute window
+});
+
+app.use(limiter);
+
+// Create a CSRF token generator
+const csrfProtection = csrf({ cookie: true });
 
 if (process.env.NODE_ENV === "developement") {
   app.use(morgan("dev"));
@@ -21,12 +34,31 @@ if (process.env.NODE_ENV === "developement") {
 
 app.use(express.json());
 
+// Add the CSRF middleware before your routes
+app.use(csrfProtection);
+
+// This middleware will add a "csrfToken" variable to your views
+app.use((req, res, next) => {
+  res.locals.csrfToken = req.csrfToken();
+  next();
+});
+
 app.use("/api/products", productRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/orders", orderRoutes);
 app.get("/api/config/paypal", (req, res) =>
   res.send(process.env.PAYPAL_CLIENT_ID)
 );
+
+// Handle CSRF errors
+app.use((err, req, res, next) => {
+  if (err && err.code === "EBADCSRFTOKEN") {
+    // Handle CSRF token validation failure
+    res.status(403).send("CSRF token validation failed");
+  } else {
+    next(err);
+  }
+});
 
 const __dirname = path.resolve();
 
