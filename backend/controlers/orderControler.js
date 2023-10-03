@@ -9,7 +9,8 @@ const addorderitems = asyncHandler(async (req, res) => {
     console.log(req.user)
 
     const {orderItems,shippingAddress,paymentMethod,itemsPrice,taxPrice,shippingPrice,totalPrice} = req.body
-    if(orderItems && orderItems.length === 0){
+    if (typeof orderItems === 'object' && Array.isArray(orderItems)) {
+        if (orderItems.length === 0) {
         res.status(400)
         throw new Error('No order items')
         return
@@ -29,7 +30,7 @@ const addorderitems = asyncHandler(async (req, res) => {
 
         res.status(201).json(createdOrder)
     }
-})
+}})
     // @desc get order by id
     // @route GET /api/orders/:id
     // @access Private
