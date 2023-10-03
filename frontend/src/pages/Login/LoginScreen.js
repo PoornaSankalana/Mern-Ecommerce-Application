@@ -10,6 +10,8 @@ import login from '../../actions/userActions'
 import login_svg from './img/login.svg'
 import wave from './img/wavev.png'
 import './logincss.css'
+import { LoginSocialGoogle } from 'reactjs-social-login';
+import { GoogleLoginButton } from 'react-social-login-buttons';
 
 
 
@@ -106,7 +108,20 @@ const LoginScreen = ({location, history}) => {
                          
                          </div>
               <Link className="createAcc" to={redirect ? `/register?redirect=${redirect}` : '/register'}>Create your Account <BsArrowRight size="25"/></Link>
-             
+              <LoginSocialGoogle
+        client_id={"938311708389-fu4c1ckldi2vbdbf042c1k7fru2qmmo1.apps.googleusercontent.com"}
+        scope="openid profile email"
+        discoveryDocs="claims_supported"
+        access_type="offline"
+        onResolve={({ provider, data }) => {
+          console.log(provider, data);
+        }}
+        onReject={(err) => {
+          console.log(err);
+        }}
+      >
+        <GoogleLoginButton />
+      </LoginSocialGoogle>
             </form>
         </div>
     </div>
