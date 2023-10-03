@@ -1,7 +1,6 @@
-import React, {useState, useEffect} from 'react'
-import {Link} from 'react-router-dom'
-import { Helmet } from 'react-helmet';
-
+import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import { Helmet } from "react-helmet";
 import {Form, Image} from 'react-bootstrap'
 import {useDispatch, useSelector} from 'react-redux'
 import {BsArrowRight} from "react-icons/bs"
@@ -13,57 +12,47 @@ import './logincss.css'
 import { LoginSocialGoogle } from 'reactjs-social-login';
 import { GoogleLoginButton } from 'react-social-login-buttons';
 
+const LoginScreen = ({ location, history }) => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
+  const dispatch = useDispatch();
 
+  const userLogin = useSelector((state) => state.userLogin);
 
-const LoginScreen = ({location, history}) => {
-  const [email,setEmail] = useState('')
-  const [password,setPassword] = useState('')
-   
-  const dispatch = useDispatch()
+  const { error, userInfo } = userLogin;
 
-  const userLogin = useSelector(state => state.userLogin)
-
-  const { error, userInfo } = userLogin
-
-  const redirect = location.search ? location.search.split('=')[1] : '/'
+  const redirect = location.search ? location.search.split("=")[1] : "/";
 
   useEffect(() => {
-    if(userInfo) {
-      history.push(redirect)
+    if (userInfo) {
+      history.push(redirect);
     }
-  }, [history, userInfo, redirect])
+  }, [history, userInfo, redirect]);
 
   const submitHandler = (e) => {
-    e.preventDefault()
-    dispatch(login(email, password))
-  }
+    e.preventDefault();
+    dispatch(login(email, password));
+  };
 
   const inputs = document.querySelectorAll(".inputa");
 
-
-  function addcl(){
+  function addcl() {
     let parent = this.parentNode.parentNode;
     parent.classList.add("focus");
   }
-  
-  function remcl(){
+
+  function remcl() {
     let parent = this.parentNode.parentNode;
-    if(this.value == ""){
+    if (this.value == "") {
       parent.classList.remove("focus");
     }
   }
-  
-  
-  inputs.forEach(inputa => {
+
+  inputs.forEach((inputa) => {
     inputa.addEventListener("focus", addcl);
     inputa.addEventListener("blur", remcl);
   });
-  
-
-
-
-
     return (
         <div>
           <Helmet>
@@ -124,9 +113,9 @@ const LoginScreen = ({location, history}) => {
       </LoginSocialGoogle>
             </form>
         </div>
+      </div>
     </div>
-        </div>
-    )
-}
+  );
+};
 
-export default LoginScreen
+export default LoginScreen;

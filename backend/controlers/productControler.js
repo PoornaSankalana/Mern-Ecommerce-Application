@@ -1,6 +1,6 @@
-import asyncHandler from 'express-async-handler'
+import asyncHandler from "express-async-handler";
 
-import Product from '../models/productModel.js'
+import Product from "../models/productModel.js";
 
 // @desc Fetch all products
 // @route GET /api/products
@@ -67,9 +67,6 @@ const getProducts = asyncHandler(async (req, res) => {
     }
 })
 
-
-
-
 // @desc Fetch single product
 // @route GET /api/products/:id
 // @access Public
@@ -86,37 +83,39 @@ const getProductById = asyncHandler(async (req, res) => {
 // @route GET /api/products/:id
 // @access Private/Admin
 const deleteProduct = asyncHandler(async (req, res) => {
-    const product =  await Product.findById(req.params.id)
-    if(product){
-        await product.remove()
-        res.json({message : 'Product Removed'})
-    } else{
-        // status it's 500 by default cuz of errHandler
-        res.status(404)
-        throw new Error('Product not found')
-    }
-})
+	const product = await Product.findById(req.params.id);
+	if (product) {
+		await product.remove();
+		res.json({ message: "Product Removed" });
+	} else {
+		// status it's 500 by default cuz of errHandler
+		res.status(404);
+		throw new Error("Product not found");
+	}
+});
 
 // @desc Create a product
 // @route Post /api/products
 // @access Private/Admin
 const createProduct = asyncHandler(async (req, res) => {
-
-    const product = new Product({
-        name : 'Sample name',
-        price : 0,
-        description : 'sample description',
-        user : req.user._id,
-        sizes : [],
-        images : ['https://i.imgur.com/QN2BSdJ.jpg','https://i.imgur.com/QN2BSdJ.jpg','https://i.imgur.com/QN2BSdJ.jpg'],
-        category : [],
-        countInStock :  0,
-        numReviews : 0
-
-    })
-    const createProduct = await product.save();
-    res.status(201).json(createProduct)
-})
+	const product = new Product({
+		name: "Sample name",
+		price: 0,
+		description: "sample description",
+		user: req.user._id,
+		sizes: [],
+		images: [
+			"https://i.imgur.com/QN2BSdJ.jpg",
+			"https://i.imgur.com/QN2BSdJ.jpg",
+			"https://i.imgur.com/QN2BSdJ.jpg",
+		],
+		category: [],
+		countInStock: 0,
+		numReviews: 0,
+	});
+	const createProduct = await product.save();
+	res.status(201).json(createProduct);
+});
 
 // @desc Update a product
 // @route PUT /api/products/:id
@@ -141,37 +140,45 @@ const updateProduct = asyncHandler(async (req, res) => {
         throw new Error('Product not found');
     }
 });
+
 // @desc Create new Review
 // @route PUT /api/products/:id/reviews
 // @access Private
 const createproductreview = asyncHandler(async (req, res) => {
-    const {rating,comment} = req.body
-    const product = await Product.findById(req.params.id)
-    if(product){
-        const alreadyReviewed = product.reviews.find(r => r.user.toString() === req.user._id.toString()) 
-        if(alreadyReviewed){
-            res.status(404)
-            throw new Error('Product Already Review')
-
-        }
-        const review = {
-            name : req.user.name,
-            rating : Number(rating),
-            comment,
-            user : req.user._id
-        }
-        product.reviews.push(review)
-        product.numReviews = product.reviews.length
-        product.rating =product.reviews.reduce((acc,item)=> item.rating+acc,0)/product.reviews.length
-        await product.save()
-        res.status(201).json({message : 'Review added'})
-    }else{
-        res.status(404)
-        throw new Error('Product Not found')
-    }
-})
-
+	const { rating, comment } = req.body;
+	const product = await Product.findById(req.params.id);
+	if (product) {
+		const alreadyReviewed = product.reviews.find(
+			(r) => r.user.toString() === req.user._id.toString(),
+		);
+		if (alreadyReviewed) {
+			res.status(404);
+			throw new Error("Product Already Review");
+		}
+		const review = {
+			name: req.user.name,
+			rating: Number(rating),
+			comment,
+			user: req.user._id,
+		};
+		product.reviews.push(review);
+		product.numReviews = product.reviews.length;
+		product.rating =
+			product.reviews.reduce((acc, item) => item.rating + acc, 0) /
+			product.reviews.length;
+		await product.save();
+		res.status(201).json({ message: "Review added" });
+	} else {
+		res.status(404);
+		throw new Error("Product Not found");
+	}
+});
 
 export {
-    getProducts, getProductById,deleteProduct,createProduct,updateProduct,createproductreview
-}
+	getProducts,
+	getProductById,
+	deleteProduct,
+	createProduct,
+	updateProduct,
+	createproductreview,
+};
