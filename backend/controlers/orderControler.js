@@ -8,20 +8,13 @@ import Order from "../models/orderModel.js";
 const addorderitems = asyncHandler(async(req, res) => {
     console.log(req.user);
 
-    const {
-        orderItems,
-        shippingAddress,
-        paymentMethod,
-        itemsPrice,
-        taxPrice,
-        shippingPrice,
-        totalPrice,
-    } = req.body;
-    if (Array.isArray(orderItems) && orderItems.length === 0) {
-        res.status(400);
-        throw new Error("No order items");
-        return;
-    } else {
+    const {orderItems,shippingAddress,paymentMethod,itemsPrice,taxPrice,shippingPrice,totalPrice} = req.body
+    if (typeof orderItems === 'object' && Array.isArray(orderItems)) {
+        if (orderItems.length === 0) {
+        res.status(400)
+        throw new Error('No order items')
+        return
+    }else{
         const order = new Order({
             user: req.user._id,
             orderItems,
@@ -37,20 +30,17 @@ const addorderitems = asyncHandler(async(req, res) => {
 
         res.status(201).json(createdOrder);
     }
-});
-// @desc get order by id
-// @route GET /api/orders/:id
-// @access Private
-const getOrderById = asyncHandler(async(req, res) => {
-    const order = await Order.findById(req.params.id).populate(
-        "user",
-        "name email",
-    );
-    if (order) {
-        res.json(order);
-    } else {
-        res.status(404);
-        throw new Error("Order Not found");
+}})
+    // @desc get order by id
+    // @route GET /api/orders/:id
+    // @access Private
+const getOrderById = asyncHandler(async (req, res) => {
+    const order  = await Order.findById(req.params.id).populate('user','name email')
+    if(order){
+        res.json(order)
+    }else{
+        res.status(404)
+        throw new Error('Order Not found')
     }
 });
 // @desc update order to paid
